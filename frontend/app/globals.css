@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  --gold: #F5A623;
+  --gold-light: #FFD07A;
+  --gold-dark: #C17D0A;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #333 #000;
+}
+
+::selection {
+  background: rgba(245, 166, 35, 0.3);
+  color: #fff;
+}
