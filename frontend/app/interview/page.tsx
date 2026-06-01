@@ -40,7 +40,7 @@ export default function InterviewPage() {
   const startInterview = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com/interview/questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ career_data: careerData || {} }),
@@ -63,7 +63,7 @@ export default function InterviewPage() {
     setFeedbackLoading(true);
     setFeedback(null);
     try {
-      const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com/interview/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
