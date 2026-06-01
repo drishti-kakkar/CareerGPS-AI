@@ -16,7 +16,7 @@ export default function AnalyzePage() {
     formData.append("github", github);
     formData.append("resume", file);
     try {
-      const res = await fetch("http://localhost:8000/analyze", { method: "POST", body: formData });
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com", { method: "POST", body: formData });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       localStorage.setItem("careerData", JSON.stringify(data));

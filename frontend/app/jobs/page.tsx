@@ -21,7 +21,7 @@ export default function JobsPage() {
   const loadJobs = async (searchRole: string) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/jobs?role=" + encodeURIComponent(searchRole));
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com" + encodeURIComponent(searchRole));
       const data = await res.json();
       setJobs(data.jobs || []);
     } catch {

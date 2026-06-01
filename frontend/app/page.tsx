@@ -18,29 +18,20 @@ export default function Home() {
       <Navbar />
 
       {/* ANIMATED GRID BACKGROUND */}
-<div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-  <motion.div
-    animate={{
-      backgroundPosition: ["0px 0px", "80px 80px"],
-    }}
-    transition={{
-      duration: 20,
-      repeat: Infinity,
-      ease: "linear",
-    }}
-    className="absolute inset-0"
-    style={{
-      backgroundImage: "linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px)",
-      backgroundSize: "80px 80px",
-    }}
-  />
-  {/* Fade edges so grid doesn't look cut off */}
-  <div className="absolute inset-0"
-    style={{
-      background: "radial-gradient(ellipse at center, transparent 80%, #080808 100%)"
-    }}
-  />
-</div>
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{ backgroundPosition: ["0px 0px", "80px 80px"] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0"
+          style={{
+            backgroundImage: "linear-gradient(rgba(245,166,35,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.07) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
+          }}
+        />
+        <div className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse at center, transparent 80%, #080808 100%)" }}
+        />
+      </div>
 
       {/* GOLD GLOW — top center */}
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] pointer-events-none z-0"

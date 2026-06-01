@@ -15,3 +15,16 @@
   background: rgba(245, 166, 35, 0.3);
   color: #fff;
 }
+
+@keyframes grid-move {
+  0%   { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(245,166,35,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,166,35,0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-move 3s linear infinite;
+}

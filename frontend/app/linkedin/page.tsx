@@ -37,7 +37,7 @@ export default function LinkedInPage() {
     if (!linkedinUrl.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/linkedin", {
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

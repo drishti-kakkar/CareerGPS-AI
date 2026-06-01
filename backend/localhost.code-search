@@ -1,0 +1,28 @@
+# Query: localhost
+# ContextLines: 1
+
+5 results - 4 files
+
+frontend\app\analyze\page.tsx:
+  18      try {
+  19:       const res = await fetch("https://careergps-backend-4sl3.onrender.com", { method: "POST", body: formData });
+  20        const data = await res.json();
+
+frontend\app\interview\page.tsx:
+  42      try {
+  43:       const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
+  44          method: "POST",
+
+  65      try {
+  66:       const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
+  67          method: "POST",
+
+frontend\app\jobs\page.tsx:
+  23      try {
+  24:       const res = await fetch("https://careergps-backend-4sl3.onrender.com" + encodeURIComponent(searchRole));
+  25        const data = await res.json();
+
+frontend\app\linkedin\page.tsx:
+  39      try {
+  40:       const res = await fetch("https://careergps-backend-4sl3.onrender.com", {
+  41          method: "POST",

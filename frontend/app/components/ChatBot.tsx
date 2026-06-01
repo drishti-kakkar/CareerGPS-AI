@@ -1,11 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-
+ 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
-
+ 
 export default function ChatBot({ careerData }: { careerData?: any }) {
   const [open, setOpen] = useState(false);
   const [resolvedData, setResolvedData] = useState<any>(careerData || null);
@@ -18,29 +18,28 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  // localStorage se careerData load karo agar prop nahi aaya
+ 
   useEffect(() => {
     if (!resolvedData) {
       const stored = localStorage.getItem("careerData");
       if (stored) setResolvedData(JSON.parse(stored));
     }
   }, []);
-
+ 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
+ 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
-
+ 
     const userMsg: Message = { role: "user", content: input };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
-
+ 
     try {
-      const res = await fetch("http://localhost:8000/chat", {
+      const res = await fetch("https://careergps-backend-4sl3.onrender.com/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -66,7 +65,7 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
       setLoading(false);
     }
   };
-
+ 
   return (
     <>
       {/* FLOATING BUTTON */}
@@ -76,7 +75,7 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
       >
         {open ? "✕" : "🤖"}
       </button>
-
+ 
       {/* CHAT WINDOW */}
       {open && (
         <div className="fixed bottom-24 right-6 z-50 w-80 md:w-96 bg-black border border-white/20 rounded-2xl flex flex-col overflow-hidden shadow-2xl"
@@ -87,7 +86,7 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
             <p className="text-white font-bold text-sm">🤖 AI Career Advisor</p>
             <p className="text-green-400 text-xs">● Online {resolvedData ? "· Profile loaded" : ""}</p>
           </div>
-
+ 
           {/* MESSAGES */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.map((m, i) => (
@@ -106,7 +105,7 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
                 </div>
               </div>
             ))}
-
+ 
             {/* TYPING INDICATOR */}
             {loading && (
               <div className="flex justify-start">
@@ -121,7 +120,7 @@ export default function ChatBot({ careerData }: { careerData?: any }) {
             )}
             <div ref={bottomRef} />
           </div>
-
+ 
           {/* INPUT */}
           <div className="p-3 border-t border-white/10 flex gap-2 shrink-0">
             <input
