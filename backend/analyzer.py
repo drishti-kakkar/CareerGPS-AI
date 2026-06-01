@@ -229,35 +229,33 @@ def fetch_linkedin_profile(linkedin_url: str):
         return None
 
 
-def generate_linkedin_tips(career_data: dict, linkedin_url: str = "", connections: str = ""):
-    # Real profile fetch karo
-    profile = fetch_linkedin_profile(linkedin_url)
-    
+def generate_linkedin_tips(career_data: dict, pdf_bytes: bytes = b"", connections: str = ""):
+    # PDF se text extract karo
+    linkedin_text = ""
+    if pdf_bytes:
+        try:
+            with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+                for page in pdf.pages:
+                    linkedin_text += page.extract_text() or ""
+        except Exception as e:
+            print("LinkedIn PDF extract error:", e)
+
     profile_context = ""
-    if profile:
+    if linkedin_text.strip():
         profile_context = """
-Real LinkedIn Profile Data:
-- Name: """ + str(profile.get('name', '')) + """
-- Headline: """ + str(profile.get('headline', '')) + """
-- Summary: """ + str(profile.get('summary', ''))[:500] + """
-- Experience: """ + str([e.get('title','') + ' at ' + e.get('company','') for e in profile.get('experience', [])[:3]]) + """
-- Education: """ + str([e.get('school','') for e in profile.get('education', [])[:2]]) + """
-- Skills: """ + str(profile.get('skills', [])[:10]) + """
-- Connections: """ + connections + """
+Actual LinkedIn PDF Content:
+""" + linkedin_text[:3000] + """
 """
     else:
         profile_context = """
-LinkedIn URL: """ + linkedin_url + """
+LinkedIn PDF unavailable — analyzing based on career data only.
 Connections: """ + (connections or "Unknown") + """
-(Profile data unavailable — analyzing based on career data)
 """
-
-    username = linkedin_url.replace("https://linkedin.com/in/", "").replace("https://www.linkedin.com/in/","").strip("/")
 
     prompt = """
 You are an expert LinkedIn profile coach and career analyst.
 
-Analyze this developer's profile completely and return a detailed JSON analysis.
+Analyze this developer's LinkedIn profile and return a detailed JSON analysis.
 
 """ + profile_context + """
 
@@ -273,9 +271,9 @@ Return ONLY this JSON structure:
 {
   "overallScore": 65,
   "topSkills": ["Python", "React", "Node.js"],
-  "experienceSummary": "<2-3 line summary of their experience>",
-  "projectsSummary": "<2-3 line summary of their projects>",
-  "educationSummary": "<1 line>",
+  "experienceSummary": "<2-3 line summary of their actual experience from PDF>",
+  "projectsSummary": "<2-3 line summary of their actual projects>",
+  "educationSummary": "<1 line education summary>",
   "jobRoleProbability": [
     {"role": "Full Stack Developer", "probability": 85},
     {"role": "Backend Developer", "probability": 75},
@@ -284,8 +282,8 @@ Return ONLY this JSON structure:
     {"role": "Frontend Developer", "probability": 60}
   ],
   "tips": [
-    {"section": "Headline", "priority": "High", "tip": "<specific tip>", "example": "<rewritten headline>"},
-    {"section": "About", "priority": "High", "tip": "<specific tip>", "example": "<example>"},
+    {"section": "Headline", "priority": "High", "tip": "<specific tip based on their actual profile>", "example": "<rewritten headline for them>"},
+    {"section": "About", "priority": "High", "tip": "<specific tip>", "example": "<example about section>"},
     {"section": "Experience", "priority": "Medium", "tip": "<specific tip>", "example": "<example>"},
     {"section": "Skills", "priority": "High", "tip": "<specific tip>", "example": "<example>"},
     {"section": "Projects", "priority": "Medium", "tip": "<specific tip>", "example": "<example>"},
@@ -293,7 +291,7 @@ Return ONLY this JSON structure:
   ]
 }
 
-Be specific and personalized. Return ONLY JSON. No markdown.
+Be specific to their ACTUAL profile data. Return ONLY JSON. No markdown.
 """
     try:
         response = client.chat.completions.create(
@@ -307,7 +305,6 @@ Be specific and personalized. Return ONLY JSON. No markdown.
     except Exception as e:
         print("LinkedIn tips error:", e)
         return {}
-
 def generate_interview_questions(career_data: dict):
     prompt = """
 You are a senior tech interviewer at a top company.

@@ -44,13 +44,19 @@ async def get_jobs(role: str = "software developer", country: str = "in"):
     return {"jobs": jobs}
 
 @app.post("/linkedin")
-async def linkedin_optimize(request: Request):
+async def linkedin_optimize(
+    pdf: UploadFile = File(...),
+    connections: str = Form(""),
+    career_data: str = Form("{}"),
+):
     try:
-        body = await request.json()
+        import json
+        pdf_bytes = await pdf.read()
+        career = json.loads(career_data)
         result = generate_linkedin_tips(
-            career_data=body.get("career_data", {}),
-            linkedin_url=body.get("linkedin_url", ""),
-            connections=body.get("connections", ""),
+            career_data=career,
+            pdf_bytes=pdf_bytes,
+            connections=connections,
         )
         return result
     except Exception as e:

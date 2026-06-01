@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Tip {
   section: string;
@@ -25,8 +25,9 @@ export default function LinkedInPage() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [careerData, setCareerData] = useState<any>(null);
-  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [connections, setConnections] = useState("");
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("careerData");
@@ -34,17 +35,17 @@ export default function LinkedInPage() {
   }, []);
 
   const analyze = async () => {
-    if (!linkedinUrl.trim()) return;
+    if (!pdfFile) return;
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("pdf", pdfFile);
+      formData.append("connections", connections);
+      if (careerData) formData.append("career_data", JSON.stringify(careerData));
+
       const res = await fetch("https://careergps-backend-4sl3.onrender.com/linkedin", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          career_data: careerData || {},
-          linkedin_url: linkedinUrl,
-          connections: connections,
-        }),
+        body: formData,
       });
       const data = await res.json();
       setAnalysis(data);
@@ -79,23 +80,59 @@ export default function LinkedInPage() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
           <h1 className="text-3xl font-bold">LinkedIn Optimizer</h1>
-          <p className="text-gray-500 text-sm mt-1">Full profile analysis + optimization tips</p>
+          <p className="text-gray-500 text-sm mt-1">Upload your LinkedIn PDF export for a full profile analysis</p>
         </motion.div>
 
-        {/* INPUT FORM */}
         {!analysis && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-            <div className="p-5 rounded-2xl border border-white/10 bg-white/5">
-              <label className="text-sm text-gray-400 mb-2 block">🔗 LinkedIn Profile URL *</label>
-              <input
-                type="text"
-                value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
-                placeholder="https://linkedin.com/in/yourname"
-                className="w-full bg-transparent text-white placeholder-gray-600 border border-white/10 rounded-lg px-4 py-3 focus:outline-none focus:border-white/30 transition text-sm"
-              />
+
+            {/* HOW TO EXPORT */}
+            <div className="p-4 rounded-2xl border border-amber-400/20 bg-amber-400/5">
+              <p className="text-amber-400 text-sm font-semibold mb-1">📥 How to export your LinkedIn PDF</p>
+              <ol className="text-gray-400 text-xs space-y-1 list-decimal list-inside">
+                <li>Go to your LinkedIn profile</li>
+                <li>Click "More" button → "Save to PDF"</li>
+                <li>Upload that PDF below</li>
+              </ol>
             </div>
 
+            {/* PDF UPLOAD */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOver(false);
+                const file = e.dataTransfer.files[0];
+                if (file?.type === "application/pdf") setPdfFile(file);
+              }}
+              className={`p-8 rounded-2xl border-2 border-dashed transition cursor-pointer text-center ${
+                dragOver ? "border-white/40 bg-white/10" : "border-white/10 bg-white/5"
+              }`}
+              onClick={() => document.getElementById("pdf-input")?.click()}
+            >
+              <input
+                id="pdf-input"
+                type="file"
+                accept=".pdf"
+                className="hidden"
+                onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+              />
+              {pdfFile ? (
+                <div>
+                  <p className="text-white font-semibold">📄 {pdfFile.name}</p>
+                  <p className="text-gray-500 text-xs mt-1">{(pdfFile.size / 1024).toFixed(0)} KB — Click to change</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-4xl mb-3">📄</p>
+                  <p className="text-white font-semibold">Drop your LinkedIn PDF here</p>
+                  <p className="text-gray-500 text-sm mt-1">or click to browse</p>
+                </div>
+              )}
+            </div>
+
+            {/* CONNECTIONS */}
             <div className="p-5 rounded-2xl border border-white/10 bg-white/5">
               <label className="text-sm text-gray-400 mb-2 block">🤝 Connections Count (optional)</label>
               <input
@@ -111,7 +148,7 @@ export default function LinkedInPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={analyze}
-              disabled={loading || !linkedinUrl.trim()}
+              disabled={loading || !pdfFile}
               className="w-full py-4 bg-white text-black rounded-xl font-semibold hover:bg-gray-200 transition disabled:opacity-50"
             >
               {loading ? "Analyzing LinkedIn... ⏳" : "Analyze My LinkedIn →"}
@@ -124,7 +161,7 @@ export default function LinkedInPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
 
             <div className="flex justify-end">
-              <button onClick={() => setAnalysis(null)} className="text-xs text-gray-500 hover:text-white">
+              <button onClick={() => { setAnalysis(null); setPdfFile(null); }} className="text-xs text-gray-500 hover:text-white">
                 ← Re-analyze
               </button>
             </div>
@@ -211,15 +248,6 @@ export default function LinkedInPage() {
                 ))}
               </div>
             </div>
-
-            <a
-              href={linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full py-3 bg-blue-600 text-white rounded-xl font-semibold text-center hover:bg-blue-700 transition"
-            >
-              Open My LinkedIn →
-            </a>
           </motion.div>
         )}
       </section>
